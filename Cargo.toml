@@ -11,4 +11,4 @@ cipher = { version = "0.4.4", features = ["block-padding"] }
 hmac = "0.12"
 sha2 = "0.10"
 rand = "0.8"
-
+crypto-mac = "0.11"
