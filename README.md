@@ -50,7 +50,8 @@ cargo add aes block-modes crypto-mac hmac rand sha2
 
 ### `Encrypt File (Chunked)`
 ```bash
-use your_crate_name::{encrypt_file_chunked, generate_key_iv};
+mod encryption_chunked;
+use encryption_chunked::{encrypt_file_chunked, generate_key_iv};
 use std::io::Result;
 
 fn main() -> Result<()> {
@@ -61,8 +62,9 @@ fn main() -> Result<()> {
 
 
 ### `Decrypt File (Chunked)`
-```bash 
-use your_crate_name::{decrypt_file_chunked, generate_key_iv};
+```bash
+mod encryption_chunked;
+use encryption_chunked::{decrypt_file_chunked, generate_key_iv};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -76,7 +78,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 ### `Encrypt Data (Non-chunked)`
 
 ```bash
-use your_crate_name::{encrypt_data, generate_key_iv};
+mod encryption;
+use encryption::{encrypt_data, generate_key_iv};
 
 fn main() -> std::io::Result<()> {
     let key_iv = generate_key_iv();
@@ -90,7 +93,8 @@ fn main() -> std::io::Result<()> {
 ### `Decrypt Data (Non-chunked)`
 
 ```bash
-use your_crate_name::{decrypt_data, generate_key_iv};
+mod encryption;
+use encryption::{decrypt_data, generate_key_iv};
 
 fn main() -> std::io::Result<()> {
     let key_iv = generate_key_iv();
@@ -104,7 +108,7 @@ fn main() -> std::io::Result<()> {
 Clone the repository:
 ```bash
 
-git clone https://github.com/yourusername/your-repository.git
+git clone https://github.com/Melisaates/encryption_with_chunk.git
 ```
 Install the dependencies and build the project:
 
