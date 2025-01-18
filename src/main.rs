@@ -6,12 +6,10 @@ fn main()  -> Result<(), Box<dyn std::error::Error>> {
     //"C:\Users\melisates\Downloads\1. Algorithms and Computation.mp4"
     //Documents/WhatsApp Video 2024-11-03 at 18.47.50_f9c56fbd.mp4
     //WhatsApp Image 2024-12-01 at 14.40.49_48a551a2.jpg
-    let encrypted_file_path = "C:/Users/melisates/Documents/encrypted_fileeee.mp4";
-    let decrypted_file_path = "C:/Users/melisates/Documents/decrypted_fileee.mp4";
 
+    let encrypted_file_path = "C:/Users/melisates/development/encryption_with_chunk/files/encrypted.mp4";
+    let decrypted_file_path = "C:/Users/melisates/development/encryption_with_chunk/files/decrypted.mp4";
 
-    println!("Encrypted file size: {}", std::fs::metadata(encrypted_file_path)?.len());
-println!("File size before decryption: {}", std::fs::metadata(decrypted_file_path)?.len());
 
     // 1. Generate key and IV
     let key_data = generate_key_iv();

@@ -100,7 +100,7 @@ pub fn decrypt_file_path_with_chunk(file_path: &str, output_path: &str, key: &[u
             break;
         }
         // Log the encrypted data chunk before decryption
-        println!("Encrypted chunk: {:?}", &buffer[..read_bytes]);
+      //  println!("Encrypted chunk: {:?}", &buffer[..read_bytes]);
     
         // HMAC update
         hmac_calculator.update(&buffer[..read_bytes]);
@@ -112,7 +112,8 @@ pub fn decrypt_file_path_with_chunk(file_path: &str, output_path: &str, key: &[u
         })?;
     
         // Log the decrypted chunk
-        println!("Decrypted chunk: {:?}", decrypted_chunk);
+       //
+       // println!("Decrypted chunk: {:?}", decrypted_chunk);
         output_file.write_all(&decrypted_chunk)?;
     
         total_read += read_bytes;
