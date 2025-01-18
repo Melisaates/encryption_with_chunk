@@ -1,7 +1,6 @@
 use aes::Aes128;
 use block_modes::{BlockMode, Cbc};
 use block_modes::block_padding::Pkcs7;
-use crypto_mac::Mac;
 use hmac::{Hmac, Mac as _};
 use rand::Rng;
 use sha2::Sha256;
