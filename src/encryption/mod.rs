@@ -3,7 +3,8 @@ use block_modes::{Cbc, BlockMode};
 use block_modes::block_padding::Pkcs7;
 use rand::Rng;
 use std::fs::{File, OpenOptions};
-use std::io::{self, Read, Write, Seek, SeekFrom};use hmac::{Hmac, Mac};
+use std::io::{self, Read, Write, Seek, SeekFrom};
+use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use hex::{encode};
 
@@ -24,27 +25,28 @@ pub fn generate_key_iv() -> KeyData {
 
 type Aes128Cbc = Cbc<Aes128, Pkcs7>;
 
+// Function to encrypt a file
 pub fn encrypt_file(file_path: &str,
     output_path: &str,
     key: &[u8; 16],
     iv: &[u8; 16]) -> std::io::Result<()> {
     let key_data = generate_key_iv();
 
-    // Dosyayı şifrele
-    // AES-256 için anahtar 32 byte ve IV 16 byte
-    let cipher = Aes128Cbc::new_from_slices(&key_data.key, &key_data.iv).unwrap();  // Bu doğru şekilde çalışmalıdır
+    // Encrypt the file
+    // For AES-256, the key is 32 bytes and IV is 16 bytes
+    let cipher = Aes128Cbc::new_from_slices(&key_data.key, &key_data.iv).unwrap();  // This should work correctly
     let mut file = File::open(file_path)?;
     let mut data = Vec::new();
     file.read_to_end(&mut data)?;
 
     let encrypted_data = cipher.encrypt_vec(&data);
 
-    // HMAC hesaplama
+    // Calculate HMAC
     let mut hmac = Hmac::<Sha256>::new_from_slice(&key_data.key).expect("HMAC can take key of any size");
     hmac.update(&encrypted_data);
     let hmac_result = hmac.finalize().into_bytes();
 
-    // Şifreli veriyi ve HMAC'ı dosyaya yazma
+    // Write the encrypted data and HMAC to the file
     let mut output_file = File::create(output_path)?;
     output_file.write_all(&encrypted_data)?;
     output_file.write_all(&hmac_result)?;
@@ -52,12 +54,11 @@ pub fn encrypt_file(file_path: &str,
     Ok(())
 }
 
-
-// Decrypt the file with key from the key manager
+// Function to decrypt a file
 pub fn decrypt_file(file_path: &str,
     output_path: &str,
     key: &[u8; 16],
-    iv: &[u8; 16],) -> std::io::Result<()> {
+    iv: &[u8; 16]) -> std::io::Result<()> {
 
     let mut file = File::open(file_path)?;
     let mut encrypted_data = Vec::new();
@@ -83,7 +84,7 @@ pub fn decrypt_file(file_path: &str,
     }
 
     // Decrypt the file data
-    let cipher = Aes128Cbc::new_from_slices(key,iv).expect("Error creating cipher");
+    let cipher = Aes128Cbc::new_from_slices(key, iv).expect("Error creating cipher");
     let decrypted_data = cipher.decrypt_vec(encrypted_data).map_err(|_| {
         std::io::Error::new(std::io::ErrorKind::InvalidData, "Decryption failed")
     })?;
@@ -95,27 +96,25 @@ pub fn decrypt_file(file_path: &str,
     Ok(())
 }
 
-
-
+// Function to encrypt data
 pub fn encrypt_data(file_data: &[u8], key: &[u8; 16], iv: &[u8; 16]) -> std::io::Result<Vec<u8>> {
-  
 
-    // AES CBC ile şifreleme
+    // Encrypt with AES CBC
     let cipher = Aes128Cbc::new_from_slices(key, iv).expect("Error creating cipher");
     let encrypted_data = cipher.encrypt_vec(&file_data);
-     // HMAC hesaplama
-     let mut hmac = Hmac::<Sha256>::new_from_slice(key).expect("HMAC can take key of any size");
-     hmac.update(&encrypted_data);
-     let hmac_result = hmac.finalize().into_bytes();
 
-     Ok(encrypted_data)
+    // Calculate HMAC
+    let mut hmac = Hmac::<Sha256>::new_from_slice(key).expect("HMAC can take key of any size");
+    hmac.update(&encrypted_data);
+    let hmac_result = hmac.finalize().into_bytes();
+
+    Ok(encrypted_data)
 }
 
-
-
+// Function to decrypt data
 pub fn decrypt_data(encrypted_data: &[u8], key: &[u8; 16], iv: &[u8; 16]) -> std::io::Result<Vec<u8>> {
 
-    // HMAC'ı kontrol etme
+    // Check HMAC
     if encrypted_data.len() < 32 {
         return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "Data too short to contain HMAC"));
     }
@@ -126,20 +125,20 @@ pub fn decrypt_data(encrypted_data: &[u8], key: &[u8; 16], iv: &[u8; 16]) -> std
 
     println!("Received HMAC: {:?}", hmac_received);
 
-    // HMAC'ı hesaplama
+    // Compute HMAC
     let mut hmac = Hmac::<Sha256>::new_from_slice(key).expect("HMAC can take key of any size");
     hmac.update(encrypted_data);
     let hmac_calculated = hmac.finalize().into_bytes();
 
     println!("Calculated HMAC: {:?}", hmac_calculated);
 
-    // HMAC doğrulama
+    // HMAC verification
     if hmac_received != hmac_calculated.as_slice() {
         return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "HMAC mismatch: Data is corrupted"));
     }
 
-    // Şifreyi çözme
-    // AES CBC ile şifre çözme
+    // Decrypt the data
+    // Decrypt with AES CBC
     let cipher = Aes128Cbc::new_from_slices(key, iv).expect("Error creating cipher");
     let decrypted_data = cipher.decrypt_vec(encrypted_data).map_err(|_| {
         std::io::Error::new(std::io::ErrorKind::InvalidData, "Decryption failed")
@@ -148,12 +147,11 @@ pub fn decrypt_data(encrypted_data: &[u8], key: &[u8; 16], iv: &[u8; 16]) -> std
     Ok(decrypted_data)
 }
 
-
-
+// Function to split a file into chunks
 pub fn split_file(file_path: &str, chunk_size: usize) -> Vec<Vec<u8>> {
-    let mut file = File::open(file_path).expect("Dosya açılamadı");
+    let mut file = File::open(file_path).expect("Failed to open file");
     let mut file_contents = Vec::new();
-    file.read_to_end(&mut file_contents).expect("Dosya okunamadı");
+    file.read_to_end(&mut file_contents).expect("Failed to read file");
 
     let mut chunks = Vec::new();
     for chunk in file_contents.chunks(chunk_size) {
@@ -161,5 +159,3 @@ pub fn split_file(file_path: &str, chunk_size: usize) -> Vec<Vec<u8>> {
     }
     chunks
 }
-
-
